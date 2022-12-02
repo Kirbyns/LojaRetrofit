@@ -5,8 +5,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import com.malenia.lojaretrofit.R
 import com.malenia.lojaretrofit.databinding.ActivityMainBinding
+import com.malenia.lojaretrofit.databinding.ItemProdutoBinding
 import com.malenia.lojaretrofit.model.Produto
 import com.malenia.lojaretrofit.service.ProdutoService
+import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -45,9 +47,11 @@ class MainActivity : AppCompatActivity() {
              //esse é ativado quando teve uma resposta do Endpoint
                if(response.isSuccessful){
                 val listaProduto = response.body()// agora o body do json está no listaProduto
-                val nomeProduto = listaProduto?.first()?.nomeProduto    //esse aqui pega o nome do primeiro produto
 
-                   alert("sucesso", "Nome do Primeiro Produto: $nomeProduto")
+                //val nomeProduto = listaProduto?.first()?.nomeProduto    //esse aqui pega o nome do primeiro produto
+
+                  // alert("sucesso", "Nome do Primeiro Produto: $nomeProduto")
+                   mostrarProdutos(listaProduto)
                }
 
                 else{
@@ -64,6 +68,34 @@ class MainActivity : AppCompatActivity() {
 
         //5 - Executar a chamada
         chamada.enqueue(callback) //colocar na fila
+
+    }
+
+
+    //Função dos elementos dinamicos
+    fun mostrarProdutos(listaProdutos: List<Produto>?){
+
+        // 0 - Percorrer por cada produto
+
+        listaProdutos?.forEach{
+            //1 -  Inflar o Layout do item da lista
+
+            val itemProduto = ItemProdutoBinding.inflate(layoutInflater)
+
+
+            // 2 - Configurar as Views(componentes) com os dados do backend
+            itemProduto.textNome.text = it.nomeProduto
+
+            itemProduto.textPreco.text = it.precProduto.toString()
+
+            // 2.5 - obter imagem do item
+            Picasso.get().load("https://oficinacordova.azurewebsites.net/android/rest/produto/image/${it.idProduto}").into(itemProduto.imageView);
+
+            //3 - adicionar o layout no container
+
+            binding.container.addView(itemProduto.root)
+        }
+
 
     }
     fun alert(titulo: String, msg:String){ //alert na tela
